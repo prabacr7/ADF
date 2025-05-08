@@ -11,3 +11,4 @@ dist/
 
 # Secrets
 .env
+DataTransfer.API/logs/datatransfer20250508.log
