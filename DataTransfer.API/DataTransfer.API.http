@@ -1,0 +1,6 @@
+@DataTransfer.API_HostAddress = http://localhost:5191
+
+GET {{DataTransfer.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

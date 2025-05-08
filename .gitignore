@@ -1,0 +1,13 @@
+# Node.js
+node_modules/
+
+# .NET
+bin/
+obj/
+.vs/
+
+# Angular
+dist/
+
+# Secrets
+.env
