@@ -4288,3 +4288,276 @@ WHERE [d].[DataSourceId] = @__id_0
 2025-05-08 13:12:05.317 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API) in 38.2997ms
 2025-05-08 13:12:05.317 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
 2025-05-08 13:12:05.318 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/tables - 200 null application/json; charset=utf-8 41.1901ms
+2025-05-08 14:28:27.562 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:27.563 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:27.564 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - 204 null null 1.6327ms
+2025-05-08 14:28:27.585 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:27.586 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:27.586 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - 204 null null 1.6131ms
+2025-05-08 14:28:27.672 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:27.672 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:27.673 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:27.673 +05:30 [INF] Route matched with {action = "GetAllDataSources", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[DataTransfer.Application.DTOs.DataSourceDto]]] GetAllDataSources(System.Nullable`1[System.Int32]) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:27.723 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:27.723 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:27.723 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:27.724 +05:30 [INF] Route matched with {action = "GetAllDataSources", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[DataTransfer.Application.DTOs.DataSourceDto]]] GetAllDataSources(System.Nullable`1[System.Int32]) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:28.209 +05:30 [INF] Executed DbCommand (31ms) [Parameters=[@__userId_Value_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[UserId] = @__userId_Value_0
+ORDER BY [d].[CreatedDate] DESC
+2025-05-08 14:28:28.210 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[DataTransfer.Application.DTOs.DataSourceDto, DataTransfer.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-08 14:28:28.224 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API) in 550.9482ms
+2025-05-08 14:28:28.224 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:28.225 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - 200 null application/json; charset=utf-8 553.3332ms
+2025-05-08 14:28:28.351 +05:30 [INF] Executed DbCommand (45ms) [Parameters=[@__userId_Value_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[UserId] = @__userId_Value_0
+ORDER BY [d].[CreatedDate] DESC
+2025-05-08 14:28:28.351 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[DataTransfer.Application.DTOs.DataSourceDto, DataTransfer.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-08 14:28:28.359 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API) in 635.288ms
+2025-05-08 14:28:28.359 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:28.361 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - 200 null application/json; charset=utf-8 660.7211ms
+2025-05-08 14:28:31.660 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/auth/login - null null
+2025-05-08 14:28:31.660 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.662 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/auth/login - 204 null null 2.1919ms
+2025-05-08 14:28:31.667 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/auth/login - application/json 40
+2025-05-08 14:28:31.667 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.667 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.AuthController.Login (DataTransfer.API)'
+2025-05-08 14:28:31.668 +05:30 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(DataTransfer.Application.DTOs.LoginRequestDto) on controller DataTransfer.API.Controllers.AuthController (DataTransfer.API).
+2025-05-08 14:28:31.876 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.AuthResponseDto'.
+2025-05-08 14:28:31.877 +05:30 [INF] Executed action DataTransfer.API.Controllers.AuthController.Login (DataTransfer.API) in 209.597ms
+2025-05-08 14:28:31.878 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.AuthController.Login (DataTransfer.API)'
+2025-05-08 14:28:31.878 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/auth/login - 200 null application/json; charset=utf-8 211.6064ms
+2025-05-08 14:28:31.896 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:31.897 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.897 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - 204 null null 1.6985ms
+2025-05-08 14:28:31.902 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:31.903 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:31.903 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.903 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.903 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - 204 null null 0.7384ms
+2025-05-08 14:28:31.903 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:31.904 +05:30 [INF] Route matched with {action = "GetAllDataSources", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[DataTransfer.Application.DTOs.DataSourceDto]]] GetAllDataSources(System.Nullable`1[System.Int32]) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:31.937 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:31.938 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.938 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:31.939 +05:30 [INF] Route matched with {action = "GetAllDataSources", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[DataTransfer.Application.DTOs.DataSourceDto]]] GetAllDataSources(System.Nullable`1[System.Int32]) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:31.942 +05:30 [INF] Executed DbCommand (36ms) [Parameters=[@__userId_Value_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[UserId] = @__userId_Value_0
+ORDER BY [d].[CreatedDate] DESC
+2025-05-08 14:28:31.950 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[DataTransfer.Application.DTOs.DataSourceDto, DataTransfer.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-08 14:28:31.950 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:31.956 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.957 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource?userId=41 - 204 null null 6.2626ms
+2025-05-08 14:28:31.963 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - null null
+2025-05-08 14:28:31.963 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API) in 59.0236ms
+2025-05-08 14:28:31.966 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:31.966 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:31.966 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - 200 null application/json; charset=utf-8 64.0866ms
+2025-05-08 14:28:31.966 +05:30 [INF] Executed DbCommand (25ms) [Parameters=[@__userId_Value_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[UserId] = @__userId_Value_0
+ORDER BY [d].[CreatedDate] DESC
+2025-05-08 14:28:31.966 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:31.967 +05:30 [INF] Route matched with {action = "GetAllDataSources", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[System.Collections.Generic.IEnumerable`1[DataTransfer.Application.DTOs.DataSourceDto]]] GetAllDataSources(System.Nullable`1[System.Int32]) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:31.967 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[DataTransfer.Application.DTOs.DataSourceDto, DataTransfer.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-08 14:28:31.975 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API) in 35.8689ms
+2025-05-08 14:28:31.975 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:31.976 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - 200 null application/json; charset=utf-8 38.3251ms
+2025-05-08 14:28:32.003 +05:30 [INF] Executed DbCommand (27ms) [Parameters=[@__userId_Value_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[UserId] = @__userId_Value_0
+ORDER BY [d].[CreatedDate] DESC
+2025-05-08 14:28:32.003 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[DataTransfer.Application.DTOs.DataSourceDto, DataTransfer.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2025-05-08 14:28:32.004 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API) in 37.7117ms
+2025-05-08 14:28:32.005 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetAllDataSources (DataTransfer.API)'
+2025-05-08 14:28:32.005 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource?userId=41 - 200 null application/json; charset=utf-8 42.2148ms
+2025-05-08 14:28:38.083 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:38.084 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:38.085 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - 204 null null 1.4282ms
+2025-05-08 14:28:38.094 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:38.094 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:38.095 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:38.095 +05:30 [INF] Route matched with {action = "GetDataSourceById", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[DataTransfer.Application.DTOs.DataSourceDto]] GetDataSourceById(Int32) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:38.127 +05:30 [INF] Executed DbCommand (29ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[DataSourceId] = @__id_0
+2025-05-08 14:28:38.128 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.DataSourceDto'.
+2025-05-08 14:28:38.129 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API) in 34.0548ms
+2025-05-08 14:28:38.129 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:38.130 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - 200 null application/json; charset=utf-8 36.3487ms
+2025-05-08 14:28:38.182 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/databases - null null
+2025-05-08 14:28:38.183 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:38.183 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/databases - 204 null null 1.058ms
+2025-05-08 14:28:38.189 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/Connection/databases - application/json 132
+2025-05-08 14:28:38.189 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:38.190 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API)'
+2025-05-08 14:28:38.191 +05:30 [INF] Route matched with {action = "GetDatabases", controller = "Connection"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetDatabases(DataTransfer.API.Models.ConnectionRequestDto) on controller DataTransfer.API.Controllers.ConnectionController (DataTransfer.API).
+2025-05-08 14:28:38.386 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-08 14:28:38.388 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API) in 196.7492ms
+2025-05-08 14:28:38.389 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API)'
+2025-05-08 14:28:38.390 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/databases - 200 null application/json; charset=utf-8 201.0238ms
+2025-05-08 14:28:46.857 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:46.857 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:46.858 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - 204 null null 0.9153ms
+2025-05-08 14:28:46.864 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:46.865 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:46.865 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:46.865 +05:30 [INF] Route matched with {action = "GetDataSourceById", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[DataTransfer.Application.DTOs.DataSourceDto]] GetDataSourceById(Int32) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:46.895 +05:30 [INF] Executed DbCommand (26ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[DataSourceId] = @__id_0
+2025-05-08 14:28:46.895 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.DataSourceDto'.
+2025-05-08 14:28:46.897 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API) in 31.6972ms
+2025-05-08 14:28:46.897 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:46.898 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - 200 null application/json; charset=utf-8 33.4811ms
+2025-05-08 14:28:46.933 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - null null
+2025-05-08 14:28:46.933 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:46.934 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - 204 null null 0.7668ms
+2025-05-08 14:28:46.939 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/Connection/tables - application/json 136
+2025-05-08 14:28:46.940 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:46.940 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:28:46.940 +05:30 [INF] Route matched with {action = "GetTables", controller = "Connection"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetTables(DataTransfer.API.Models.ConnectionRequestDto) on controller DataTransfer.API.Controllers.ConnectionController (DataTransfer.API).
+2025-05-08 14:28:47.126 +05:30 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType4`3[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-08 14:28:47.128 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API) in 187.5816ms
+2025-05-08 14:28:47.129 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:28:47.129 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/tables - 200 null application/json; charset=utf-8 190.1054ms
+2025-05-08 14:28:52.727 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:52.727 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:52.728 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - 204 null null 1.3091ms
+2025-05-08 14:28:52.733 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:52.733 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:52.734 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:52.734 +05:30 [INF] Route matched with {action = "GetDataSourceById", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[DataTransfer.Application.DTOs.DataSourceDto]] GetDataSourceById(Int32) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:52.773 +05:30 [INF] Executed DbCommand (36ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[DataSourceId] = @__id_0
+2025-05-08 14:28:52.774 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.DataSourceDto'.
+2025-05-08 14:28:52.776 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API) in 42.0347ms
+2025-05-08 14:28:52.777 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:52.777 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - 200 null application/json; charset=utf-8 44.5784ms
+2025-05-08 14:28:52.809 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/databases - null null
+2025-05-08 14:28:52.809 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:52.810 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/databases - 204 null null 0.9348ms
+2025-05-08 14:28:52.821 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/Connection/databases - application/json 132
+2025-05-08 14:28:52.823 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:52.823 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API)'
+2025-05-08 14:28:52.824 +05:30 [INF] Route matched with {action = "GetDatabases", controller = "Connection"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetDatabases(DataTransfer.API.Models.ConnectionRequestDto) on controller DataTransfer.API.Controllers.ConnectionController (DataTransfer.API).
+2025-05-08 14:28:52.860 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-08 14:28:52.862 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API) in 37.5007ms
+2025-05-08 14:28:52.862 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API)'
+2025-05-08 14:28:52.863 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/databases - 200 null application/json; charset=utf-8 41.9379ms
+2025-05-08 14:28:55.792 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:55.793 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:55.795 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - 204 null null 2.1048ms
+2025-05-08 14:28:55.804 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:28:55.805 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:55.805 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:55.806 +05:30 [INF] Route matched with {action = "GetDataSourceById", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[DataTransfer.Application.DTOs.DataSourceDto]] GetDataSourceById(Int32) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:28:55.839 +05:30 [INF] Executed DbCommand (30ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[DataSourceId] = @__id_0
+2025-05-08 14:28:55.840 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.DataSourceDto'.
+2025-05-08 14:28:55.842 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API) in 35.4629ms
+2025-05-08 14:28:55.842 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:28:55.843 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - 200 null application/json; charset=utf-8 38.2965ms
+2025-05-08 14:28:55.887 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/databases - null null
+2025-05-08 14:28:55.888 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:55.889 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/databases - 204 null null 2.0837ms
+2025-05-08 14:28:55.895 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/Connection/databases - application/json 132
+2025-05-08 14:28:55.896 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:28:55.897 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API)'
+2025-05-08 14:28:55.897 +05:30 [INF] Route matched with {action = "GetDatabases", controller = "Connection"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetDatabases(DataTransfer.API.Models.ConnectionRequestDto) on controller DataTransfer.API.Controllers.ConnectionController (DataTransfer.API).
+2025-05-08 14:28:55.933 +05:30 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.String, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-08 14:28:55.934 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API) in 37.0933ms
+2025-05-08 14:28:55.935 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetDatabases (DataTransfer.API)'
+2025-05-08 14:28:55.935 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/databases - 200 null application/json; charset=utf-8 39.7799ms
+2025-05-08 14:29:03.800 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:29:03.801 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:03.801 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - 204 null null 0.6508ms
+2025-05-08 14:29:03.807 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:29:03.807 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:03.807 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:29:03.807 +05:30 [INF] Route matched with {action = "GetDataSourceById", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[DataTransfer.Application.DTOs.DataSourceDto]] GetDataSourceById(Int32) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:29:03.836 +05:30 [INF] Executed DbCommand (26ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[DataSourceId] = @__id_0
+2025-05-08 14:29:03.836 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.DataSourceDto'.
+2025-05-08 14:29:03.837 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API) in 29.5103ms
+2025-05-08 14:29:03.837 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:29:03.838 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - 200 null application/json; charset=utf-8 31.2535ms
+2025-05-08 14:29:03.879 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - null null
+2025-05-08 14:29:03.879 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:03.880 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - 204 null null 0.569ms
+2025-05-08 14:29:03.883 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/Connection/tables - application/json 136
+2025-05-08 14:29:03.884 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:03.884 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:29:03.884 +05:30 [INF] Route matched with {action = "GetTables", controller = "Connection"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetTables(DataTransfer.API.Models.ConnectionRequestDto) on controller DataTransfer.API.Controllers.ConnectionController (DataTransfer.API).
+2025-05-08 14:29:03.922 +05:30 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType4`3[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-08 14:29:03.924 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API) in 38.943ms
+2025-05-08 14:29:03.924 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:29:03.925 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/tables - 200 null application/json; charset=utf-8 41.4655ms
+2025-05-08 14:29:07.670 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:29:07.672 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.673 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - 204 null null 2.1699ms
+2025-05-08 14:29:07.681 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:29:07.682 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.685 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/DataSource/190?userId=41 - 204 null null 3.5135ms
+2025-05-08 14:29:07.687 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:29:07.688 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.689 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:29:07.690 +05:30 [INF] Route matched with {action = "GetDataSourceById", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[DataTransfer.Application.DTOs.DataSourceDto]] GetDataSourceById(Int32) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:29:07.692 +05:30 [INF] Request starting HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - null null
+2025-05-08 14:29:07.692 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.694 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:29:07.695 +05:30 [INF] Route matched with {action = "GetDataSourceById", controller = "DataSource"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.ActionResult`1[DataTransfer.Application.DTOs.DataSourceDto]] GetDataSourceById(Int32) on controller DataTransfer.API.Controllers.DataSourceController (DataTransfer.API).
+2025-05-08 14:29:07.726 +05:30 [INF] Executed DbCommand (32ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[DataSourceId] = @__id_0
+2025-05-08 14:29:07.729 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.DataSourceDto'.
+2025-05-08 14:29:07.739 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API) in 48.127ms
+2025-05-08 14:29:07.739 +05:30 [INF] Executed DbCommand (26ms) [Parameters=[@__id_0='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [d].[DataSourceId], [d].[Authentication], [d].[CreatedDate], [d].[DatasourceName], [d].[DefaultDatabaseName], [d].[Password], [d].[ServerName], [d].[UserId], [d].[UserName]
+FROM [DataSource] AS [d]
+WHERE [d].[DataSourceId] = @__id_0
+2025-05-08 14:29:07.739 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:29:07.740 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - 200 null application/json; charset=utf-8 52.8324ms
+2025-05-08 14:29:07.741 +05:30 [INF] Executing OkObjectResult, writing value of type 'DataTransfer.Application.DTOs.DataSourceDto'.
+2025-05-08 14:29:07.747 +05:30 [INF] Executed action DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API) in 52.3155ms
+2025-05-08 14:29:07.747 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.DataSourceController.GetDataSourceById (DataTransfer.API)'
+2025-05-08 14:29:07.748 +05:30 [INF] Request finished HTTP/1.1 GET http://localhost:5191/api/DataSource/190?userId=41 - 200 null application/json; charset=utf-8 56.1808ms
+2025-05-08 14:29:07.817 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - null null
+2025-05-08 14:29:07.817 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.817 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - 204 null null 0.6246ms
+2025-05-08 14:29:07.820 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/Connection/tables - application/json 136
+2025-05-08 14:29:07.820 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.820 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:29:07.821 +05:30 [INF] Route matched with {action = "GetTables", controller = "Connection"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetTables(DataTransfer.API.Models.ConnectionRequestDto) on controller DataTransfer.API.Controllers.ConnectionController (DataTransfer.API).
+2025-05-08 14:29:07.832 +05:30 [INF] Request starting HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - null null
+2025-05-08 14:29:07.833 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.833 +05:30 [INF] Request finished HTTP/1.1 OPTIONS http://localhost:5191/api/Connection/tables - 204 null null 0.7197ms
+2025-05-08 14:29:07.836 +05:30 [INF] Request starting HTTP/1.1 POST http://localhost:5191/api/Connection/tables - application/json 136
+2025-05-08 14:29:07.836 +05:30 [INF] CORS policy execution successful.
+2025-05-08 14:29:07.836 +05:30 [INF] Executing endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:29:07.837 +05:30 [INF] Route matched with {action = "GetTables", controller = "Connection"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetTables(DataTransfer.API.Models.ConnectionRequestDto) on controller DataTransfer.API.Controllers.ConnectionController (DataTransfer.API).
+2025-05-08 14:29:07.932 +05:30 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType4`3[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-08 14:29:07.947 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API) in 126.6415ms
+2025-05-08 14:29:07.948 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:29:07.948 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/tables - 200 null application/json; charset=utf-8 127.9669ms
+2025-05-08 14:29:08.166 +05:30 [INF] Executing OkObjectResult, writing value of type '<>f__AnonymousType4`3[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2025-05-08 14:29:08.170 +05:30 [INF] Executed action DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API) in 332.9366ms
+2025-05-08 14:29:08.170 +05:30 [INF] Executed endpoint 'DataTransfer.API.Controllers.ConnectionController.GetTables (DataTransfer.API)'
+2025-05-08 14:29:08.170 +05:30 [INF] Request finished HTTP/1.1 POST http://localhost:5191/api/Connection/tables - 200 null application/json; charset=utf-8 334.6854ms
