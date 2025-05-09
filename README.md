@@ -43,6 +43,19 @@ The backend follows a clean architecture approach with these layers:
 - **Application**: Application services, commands/queries, and handlers
 - **Core**: Domain entities, interfaces, and business logic
 - **Infrastructure**: Data access, external service implementations
+- **Worker**: Background service for scheduled data transfers
+
+### Worker Service
+
+The Worker Service is a .NET 7 background service that:
+
+- Polls the Scheduler table every 30 seconds
+- Processes import jobs when their scheduled time is due
+- Manages the entire data transfer process
+- Handles pre/post scripts and different transfer modes
+- Uses SQL Bulk Copy for efficient data transfer
+
+See [Worker Service README](DataTransfer.Worker/README.md) for detailed information.
 
 ### Frontend
 

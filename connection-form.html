@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Database Connection Form</title>
+  <link rel="stylesheet" href="connection-form.css">
+</head>
+<body>
+  <div class="connections-container">
+    <!-- Source Server Configuration -->
+    <div class="server-card">
+      <div class="card-header">
+        <h2 class="card-title">Source Server</h2>
+      </div>
+      <div class="card-content">
+        <div class="form-row">
+          <label for="source-server">Server Name: <span class="required">**</span></label>
+          <div class="select-container">
+            <select id="source-server" class="form-select">
+              <option value="">Select Server</option>
+            </select>
+            <button class="add-button">+</button>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <label for="source-database">Database Name: <span class="required">**</span></label>
+          <select id="source-database" class="form-select">
+            <option value="">Select Database</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <label for="source-table">Table*</label>
+          <select id="source-table" class="form-select">
+            <option value="">Select Table</option>
+          </select>
+          <div class="action-buttons">
+            <button class="view-records-btn">View Records</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Destination Server Configuration -->
+    <div class="server-card">
+      <div class="card-header">
+        <h2 class="card-title">Destination Server</h2>
+      </div>
+      <div class="card-content">
+        <div class="form-row">
+          <label for="dest-server">Server Name: <span class="required">**</span></label>
+          <div class="select-container">
+            <select id="dest-server" class="form-select">
+              <option value="">Select Server</option>
+            </select>
+            <button class="add-button">+</button>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <label for="dest-database">Database Name: <span class="required">**</span></label>
+          <select id="dest-database" class="form-select">
+            <option value="">Select Database</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <label for="dest-table">Table*</label>
+          <select id="dest-table" class="form-select">
+            <option value="">Select Table</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 
