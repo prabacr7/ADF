@@ -9,6 +9,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
@@ -46,19 +47,20 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Add CORS
+// Add CORS services
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
+    options.AddPolicy("AllowAngularApp",
         policy =>
         {
-            policy.WithOrigins(
-                    "http://localhost:4200", 
-                    "http://localhost:4201", 
-                    "http://localhost:5191"
-                )
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+            policy.AllowAnyOrigin() // Allow any origin for testing
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+            
+            // Comment out the specific origin configuration for now
+            // policy.WithOrigins("http://localhost:4200")
+            //       .AllowAnyHeader()
+            //       .AllowAnyMethod();
         });
 });
 
@@ -124,8 +126,28 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-// Add CORS middleware before routing
-app.UseCors();
+// Add CORS logging middleware for debugging
+app.Use(async (context, next) =>
+{
+    var loggerFactory = context.RequestServices.GetRequiredService<ILoggerFactory>();
+    var logger = loggerFactory.CreateLogger("CORSMiddleware");
+    
+    logger.LogInformation("Request Origin: {Origin}", context.Request.Headers.Origin);
+    logger.LogInformation("Request Path: {Path}", context.Request.Path);
+    logger.LogInformation("Request Method: {Method}", context.Request.Method);
+    
+    await next();
+    
+    logger.LogInformation("Response Status: {Status}", context.Response.StatusCode);
+    if (context.Response.Headers.ContainsKey("Access-Control-Allow-Origin"))
+    {
+        logger.LogInformation("CORS Allow Origin: {AllowOrigin}", 
+            context.Response.Headers["Access-Control-Allow-Origin"]);
+    }
+});
+
+// Use CORS middleware - This must be placed before UseAuthorization and MapControllers
+app.UseCors("AllowAngularApp");
 
 // Add authentication middleware
 app.UseAuthentication();
@@ -133,7 +155,16 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Add health check
-app.MapGet("/health", () => "Healthy");
+// Add health check with more debugging info
+app.MapGet("/health", () => 
+{
+    return Results.Ok(new 
+    { 
+        Status = "Healthy", 
+        Timestamp = DateTime.UtcNow, 
+        Environment = app.Environment.EnvironmentName,
+        Message = "API is running correctly"
+    });
+});
 
 app.Run();

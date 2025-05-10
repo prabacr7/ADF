@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
+using System;
 
 namespace DataTransfer.Infrastructure.Repositories
 {
@@ -16,6 +17,35 @@ namespace DataTransfer.Infrastructure.Repositories
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
+        // Helper method to safely read boolean values
+        private bool ReadBooleanSafe(SqlDataReader reader, string columnName)
+        {
+            int ordinal = reader.GetOrdinal(columnName);
+            if (reader.IsDBNull(ordinal))
+            {
+                return false; // Default for non-nullable bool, adjust if a nullable bool is preferred
+            }
+
+            object value = reader.GetValue(ordinal);
+
+            if (value is bool boolVal) return boolVal;
+            if (value is string stringVal)
+            {
+                if (bool.TryParse(stringVal, out var parsedBool)) return parsedBool; // Handles "True", "False"
+                if (int.TryParse(stringVal, out var parsedInt)) return parsedInt != 0; // Handles "1", "0"
+                // Consider throwing a more specific error or logging if string is not recognized
+                throw new InvalidCastException($"Cannot convert string value '{stringVal}' for column {columnName} to Boolean.");
+            }
+            // Handle common numeric types that SQL Server might return for a BIT-like column or a '1' literal
+            if (value is sbyte || value is byte || value is short || value is ushort || value is int || value is uint || value is long || value is ulong || value is decimal)
+            {
+                // Convert.ToBoolean can handle numeric types but ToInt32 is safer for comparison to 0
+                return System.Convert.ToInt32(value) != 0;
+            }
+            
+            throw new InvalidCastException($"Cannot convert value for column {columnName} of type {value.GetType()} to Boolean.");
+        }
+
         public async Task<ImportData> GetImportDataWithSourcesAsync(int importId, CancellationToken cancellationToken = default)
         {
             ImportData importData = null;
@@ -26,13 +56,26 @@ namespace DataTransfer.Infrastructure.Repositories
                 
                 // First query to get the import data
                 using (var command = new SqlCommand(
-                    @"SELECT i.Id AS ImportId, 'ImportData' As Name, i.FromConnectionId ASFromDataSourceId, i.ToConnectionId As ToDataSourceId, 
-                      i.FromTableName As FromTable, i.ToTableName As ToTable, i.Query, i.SourceColumnList  As FromColumnList, 
-                      i.SourceColumnList as ToColumnList, i.ManText AS MappedColumnList, i.BeforeQuery, i.AfterQuert AS AfterQuery, 
-                      i.IsTruncate, i.IsDeleteAndInsert AS IsDelete, i.CreatedDate, 1 AS IsActive
+                    @"SELECT i.Id AS ImportId, 
+                             'ImportData' AS Name, 
+                             i.FromConnectionId AS FromDataSourceId, 
+                             i.ToConnectionId AS ToDataSourceId, 
+                             i.FromTableName AS FromTable, 
+                             i.ToTableName AS ToTable, 
+                             i.Query, 
+                             i.SourceColumnList AS FromColumnList, 
+                             i.SourceColumnList AS ToColumnList, 
+                             i.ManText AS MappedColumnList, 
+                             i.BeforeQuery, 
+                             i.AfterQuert AS AfterQuery, 
+                             i.IsTruncate, 
+                             i.IsDeleteAndInsert AS IsDelete, 
+                             i.CreatedDate, 
+                             1 AS IsActive
                       FROM ImportData i
-					  Join DataSource D on d.DataSourceId=i.FromConnectionId ANd d.DataSourceId=i.ToConnectionId
-                      WHERE i.Id == @ImportId", connection))
+                      JOIN DataSource d ON d.DataSourceId = i.FromConnectionId 
+                      JOIN DataSource S ON S.DataSourceId = i.ToConnectionId 
+                      WHERE i.Id = @ImportId", connection))
                 {
                     command.Parameters.AddWithValue("@ImportId", importId);
 
@@ -53,10 +96,10 @@ namespace DataTransfer.Infrastructure.Repositories
                             MappedColumnList = reader.IsDBNull(reader.GetOrdinal("MappedColumnList")) ? string.Empty : reader.GetString(reader.GetOrdinal("MappedColumnList")),
                             BeforeQuery = reader.IsDBNull(reader.GetOrdinal("BeforeQuery")) ? string.Empty : reader.GetString(reader.GetOrdinal("BeforeQuery")),
                             AfterQuery = reader.IsDBNull(reader.GetOrdinal("AfterQuery")) ? string.Empty : reader.GetString(reader.GetOrdinal("AfterQuery")),
-                            IsTruncate = reader.GetBoolean(reader.GetOrdinal("IsTruncate")),
-                            IsDelete = reader.GetBoolean(reader.GetOrdinal("IsDelete")),
+                            IsTruncate = ReadBooleanSafe(reader, "IsTruncate"),
+                            IsDelete = ReadBooleanSafe(reader, "IsDelete"),
                             CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
-                            IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"))
+                            IsActive = ReadBooleanSafe(reader, "IsActive")
                         };
                     }
                 }
@@ -66,7 +109,7 @@ namespace DataTransfer.Infrastructure.Repositories
                     // Second query to get the source data source
                     using (var command = new SqlCommand(
                         @"SELECT DataSourceId, DatasourceName, ServerName, UserName, Password, 
-                          AuthenticationType, DefaultDatabaseName, UserId, CreatedDate, IsActive
+                          Authentication AS AuthenticationType, DefaultDatabaseName, UserId, CreatedDate,1 AS IsActive
                           FROM DataSource
                           WHERE DataSourceId = @DataSourceId", connection))
                     {
@@ -86,7 +129,7 @@ namespace DataTransfer.Infrastructure.Repositories
                                 DefaultDatabaseName = reader.GetString(reader.GetOrdinal("DefaultDatabaseName")),
                                 UserId = reader.IsDBNull(reader.GetOrdinal("UserId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("UserId")),
                                 CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
-                                IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"))
+                                IsActive = ReadBooleanSafe(reader, "IsActive")
                             };
                         }
                     }
@@ -94,7 +137,7 @@ namespace DataTransfer.Infrastructure.Repositories
                     // Third query to get the destination data source
                     using (var command = new SqlCommand(
                         @"SELECT DataSourceId, DatasourceName, ServerName, UserName, Password, 
-                          AuthenticationType, DefaultDatabaseName, UserId, CreatedDate, IsActive
+                          Authentication AS AuthenticationType, DefaultDatabaseName, UserId, CreatedDate,1 AS IsActive
                           FROM DataSource
                           WHERE DataSourceId = @DataSourceId", connection))
                     {
@@ -114,7 +157,7 @@ namespace DataTransfer.Infrastructure.Repositories
                                 DefaultDatabaseName = reader.GetString(reader.GetOrdinal("DefaultDatabaseName")),
                                 UserId = reader.IsDBNull(reader.GetOrdinal("UserId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("UserId")),
                                 CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
-                                IsActive = reader.GetBoolean(reader.GetOrdinal("IsActive"))
+                                IsActive = ReadBooleanSafe(reader, "IsActive")
                             };
                         }
                     }
