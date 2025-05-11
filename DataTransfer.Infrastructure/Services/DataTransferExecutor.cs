@@ -16,120 +16,118 @@ namespace DataTransfer.Infrastructure.Services
     {
         private readonly ILogger<DataTransferExecutor> _logger;
         private readonly ForeignKeyHelper _foreignKeyHelper;
+        private readonly IConnectionStringManager _connectionManager;
         private readonly int _defaultBatchSize = 1000;
         private readonly int _defaultCommandTimeout = 6000; // 100 minutes
 
-        public DataTransferExecutor(ILogger<DataTransferExecutor> logger, ForeignKeyHelper foreignKeyHelper)
+        public DataTransferExecutor(
+            ILogger<DataTransferExecutor> logger, 
+            ForeignKeyHelper foreignKeyHelper,
+            IConnectionStringManager connectionManager)
         {
             _logger = logger;
             _foreignKeyHelper = foreignKeyHelper;
+            _connectionManager = connectionManager;
         }
 
         public async Task<bool> ExecuteImportAsync(ImportData importData, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Starting import job: {JobName} (ID: {ImportId})", importData.Name, importData.ImportId);
             
-            if (importData.FromDataSource == null || importData.ToDataSource == null)
-            {
-                _logger.LogError("Source or destination data source is missing for import ID: {ImportId}", importData.ImportId);
-                return false;
-            }
-
-            using var sourceConnection = CreateConnection(importData.FromDataSource);
-            using var destinationConnection = CreateConnection(importData.ToDataSource);
-            using var managementConnection = CreateConnection(importData.ToDataSource);
+            SqlConnection sourceConnection = null;
+            SqlConnection destinationConnection = null;
+            SqlConnection managementConnection = null;
             
-            bool disabledForeignKeys = false;
             try
             {
-                // Step 1: Disable foreign keys if needed
-                if (importData.IsTruncate || importData.IsDelete || !string.IsNullOrEmpty(importData.BeforeQuery))
-                {
-                    disabledForeignKeys = await _foreignKeyHelper.DisableForeignKeysAsync(managementConnection, importData.ToTable, cancellationToken);
-                }
-
-                // Step 2: Run before query / truncate / delete
-                if (!string.IsNullOrEmpty(importData.BeforeQuery) || importData.IsTruncate || importData.IsDelete)
-                {
-                    string commandText = "";
-                    
-                    if (!string.IsNullOrEmpty(importData.BeforeQuery))
-                    {
-                        commandText += importData.BeforeQuery;
-                        if (!commandText.EndsWith(";"))
-                            commandText += ";";
-                    }
-                    
-                    if (importData.IsTruncate)
-                    {
-                        commandText += $" TRUNCATE TABLE {importData.ToTable};";
-                        _logger.LogInformation("Truncating table: {Table}", importData.ToTable);
-                    }
-                    else if (importData.IsDelete)
-                    {
-                        commandText += $" DELETE FROM {importData.ToTable};";
-                        _logger.LogInformation("Deleting all rows from table: {Table}", importData.ToTable);
-                    }
-
-                    if (!string.IsNullOrEmpty(commandText))
-                    {
-                        await ExecuteCommandAsync(managementConnection, commandText, _defaultCommandTimeout, cancellationToken);
-                    }
-                }
-
-                // Step 3: Prepare column lists and build source query
-                string sourceSelect = PrepareSourceQuery(importData);
+                // Create connections using the connection manager
+                sourceConnection = await _connectionManager.CreateSourceConnectionAsync(importData.ImportId, cancellationToken);
+                destinationConnection = await _connectionManager.CreateDestinationConnectionAsync(importData.ImportId, cancellationToken);
+                managementConnection = await _connectionManager.CreateDestinationConnectionAsync(importData.ImportId, cancellationToken);
                 
-                // Step 4: Execute bulk copy
-                int rowsCopied = await ExecuteBulkCopyAsync(
-                    sourceConnection, 
-                    destinationConnection, 
-                    sourceSelect, 
-                    importData.ToTable, 
-                    GetColumnMappings(importData),
-                    cancellationToken);
-                
-                _logger.LogInformation("Transferred {RowCount} rows to {DestinationTable}", rowsCopied, importData.ToTable);
-
-                // Step 5: Run after query if specified
-                if (!string.IsNullOrEmpty(importData.AfterQuery))
+                bool disabledForeignKeys = false;
+                try
                 {
-                    _logger.LogInformation("Executing after-script for import ID: {ImportId}", importData.ImportId);
-                    await ExecuteCommandAsync(managementConnection, importData.AfterQuery, _defaultCommandTimeout, cancellationToken);
-                }
+                    // Step 1: Disable foreign keys if needed
+                    if (importData.IsTruncate || importData.IsDelete || !string.IsNullOrEmpty(importData.BeforeQuery))
+                    {
+                        disabledForeignKeys = await _foreignKeyHelper.DisableForeignKeysAsync(managementConnection, importData.ToTable, cancellationToken);
+                    }
 
-                _logger.LogInformation("Import job completed successfully: {JobName} (ID: {ImportId})", importData.Name, importData.ImportId);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error executing import job: {JobName} (ID: {ImportId})", importData.Name, importData.ImportId);
-                return false;
+                    // Step 2: Run before query / truncate / delete
+                    if (!string.IsNullOrEmpty(importData.BeforeQuery) || importData.IsTruncate || importData.IsDelete)
+                    {
+                        string commandText = "";
+                        
+                        if (!string.IsNullOrEmpty(importData.BeforeQuery))
+                        {
+                            commandText += importData.BeforeQuery;
+                            if (!commandText.EndsWith(";"))
+                                commandText += ";";
+                        }
+                        
+                        if (importData.IsTruncate)
+                        {
+                            commandText += $" TRUNCATE TABLE {importData.ToTable};";
+                            _logger.LogInformation("Truncating table: {Table}", importData.ToTable);
+                        }
+                        else if (importData.IsDelete)
+                        {
+                            commandText += $" DELETE FROM {importData.ToTable};";
+                            _logger.LogInformation("Deleting all rows from table: {Table}", importData.ToTable);
+                        }
+
+                        if (!string.IsNullOrEmpty(commandText))
+                        {
+                            await ExecuteCommandAsync(managementConnection, commandText, _defaultCommandTimeout, cancellationToken);
+                        }
+                    }
+
+                    // Step 3: Prepare column lists and build source query
+                    string sourceSelect = PrepareSourceQuery(importData);
+                    
+                    // Step 4: Execute bulk copy
+                    int rowsCopied = await ExecuteBulkCopyAsync(
+                        sourceConnection, 
+                        destinationConnection, 
+                        sourceSelect, 
+                        importData.ToTable, 
+                        GetColumnMappings(importData),
+                        cancellationToken);
+                    
+                    _logger.LogInformation("Transferred {RowCount} rows to {DestinationTable}", rowsCopied, importData.ToTable);
+
+                    // Step 5: Run after query if specified
+                    if (!string.IsNullOrEmpty(importData.AfterQuery))
+                    {
+                        _logger.LogInformation("Executing after-script for import ID: {ImportId}", importData.ImportId);
+                        await ExecuteCommandAsync(managementConnection, importData.AfterQuery, _defaultCommandTimeout, cancellationToken);
+                    }
+
+                    _logger.LogInformation("Import job completed successfully: {JobName} (ID: {ImportId})", importData.Name, importData.ImportId);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error executing import job: {JobName} (ID: {ImportId})", importData.Name, importData.ImportId);
+                    return false;
+                }
+                finally
+                {
+                    // Re-enable foreign keys if we disabled them
+                    if (disabledForeignKeys)
+                    {
+                        await _foreignKeyHelper.EnableForeignKeysAsync(managementConnection, importData.ToTable, cancellationToken);
+                    }
+                }
             }
             finally
             {
-                // Re-enable foreign keys if we disabled them
-                if (disabledForeignKeys)
-                {
-                    await _foreignKeyHelper.EnableForeignKeysAsync(managementConnection, importData.ToTable, cancellationToken);
-                }
+                // Dispose of connections
+                sourceConnection?.Dispose();
+                destinationConnection?.Dispose();
+                managementConnection?.Dispose();
             }
-        }
-
-        private SqlConnection CreateConnection(DataSource dataSource)
-        {
-            string connectionString;
-            
-            if (dataSource.AuthenticationType.Equals("Windows Authentication", StringComparison.OrdinalIgnoreCase))
-            {
-                connectionString = $"Data Source={dataSource.ServerName};Initial Catalog={dataSource.DefaultDatabaseName};Integrated Security=True;TrustServerCertificate=True;";
-            }
-            else
-            {
-                connectionString = $"Data Source={dataSource.ServerName};Initial Catalog={dataSource.DefaultDatabaseName};User Id={dataSource.UserName};Password={dataSource.Password};TrustServerCertificate=True;";
-            }
-            
-            return new SqlConnection(connectionString);
         }
 
         private async Task ExecuteCommandAsync(SqlConnection connection, string commandText, int commandTimeout, CancellationToken cancellationToken)

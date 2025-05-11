@@ -20,6 +20,8 @@ builder.Services.AddTransient<IImportDataRepository, ImportDataRepository>();
 // Add services
 builder.Services.AddTransient<IImportExecutor, DataTransferExecutor>();
 builder.Services.AddTransient<ForeignKeyHelper>();
+builder.Services.AddTransient<IEncryptionService, EncryptionService>();
+builder.Services.AddTransient<IConnectionStringManager, ConnectionStringManager>();
 
 // Add retry policies
 builder.Services.AddTransient<IAsyncPolicy>(provider => {

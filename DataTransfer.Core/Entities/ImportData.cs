@@ -11,6 +11,8 @@ namespace DataTransfer.Core.Entities
         public int ToDataSourceId { get; set; }
         public string FromTable { get; set; } = string.Empty;
         public string ToTable { get; set; } = string.Empty;
+        public string FromDataBase { get; set; } = string.Empty;
+        public string ToDataBase { get; set; } = string.Empty;
         public string Query { get; set; } = string.Empty;
         public string FromColumnList { get; set; } = string.Empty;
         public string ToColumnList { get; set; } = string.Empty;

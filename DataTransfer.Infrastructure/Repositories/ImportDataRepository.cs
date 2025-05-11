@@ -54,14 +54,30 @@ namespace DataTransfer.Infrastructure.Repositories
             {
                 await connection.OpenAsync(cancellationToken);
                 
+                // First check if the ImportData table has FromDatabase and ToDatabase columns
+                bool hasFromToDbColumns = false;
+                
+                using (var schemaCommand = new SqlCommand(
+                    @"SELECT COUNT(*) 
+                      FROM INFORMATION_SCHEMA.COLUMNS 
+                      WHERE TABLE_NAME = 'ImportData' 
+                      AND COLUMN_NAME IN ('FromDatabase', 'ToDatabase')", connection))
+                {
+                    int count = Convert.ToInt32(await schemaCommand.ExecuteScalarAsync(cancellationToken));
+                    hasFromToDbColumns = (count == 2); // Both columns exist
+                }
+                
                 // First query to get the import data
                 using (var command = new SqlCommand(
-                    @"SELECT i.Id AS ImportId, 
+                    hasFromToDbColumns
+                    ? @"SELECT i.Id AS ImportId, 
                              'ImportData' AS Name, 
                              i.FromConnectionId AS FromDataSourceId, 
                              i.ToConnectionId AS ToDataSourceId, 
                              i.FromTableName AS FromTable, 
                              i.ToTableName AS ToTable, 
+                             i.FromDatabase AS FromDataBase,
+                             i.ToDatabase AS ToDataBase,
                              i.Query, 
                              i.SourceColumnList AS FromColumnList, 
                              i.SourceColumnList AS ToColumnList, 
@@ -74,7 +90,29 @@ namespace DataTransfer.Infrastructure.Repositories
                              1 AS IsActive
                       FROM ImportData i
                       JOIN DataSource d ON d.DataSourceId = i.FromConnectionId 
-                      JOIN DataSource S ON S.DataSourceId = i.ToConnectionId 
+                      JOIN DataSource s ON s.DataSourceId = i.ToConnectionId 
+                      WHERE i.Id = @ImportId"
+                    : @"SELECT i.Id AS ImportId, 
+                             'ImportData' AS Name, 
+                             i.FromConnectionId AS FromDataSourceId, 
+                             i.ToConnectionId AS ToDataSourceId, 
+                             i.FromTableName AS FromTable, 
+                             i.ToTableName AS ToTable, 
+                             '' AS FromDataBase,
+                             '' AS ToDataBase,
+                             i.Query, 
+                             i.SourceColumnList AS FromColumnList, 
+                             i.SourceColumnList AS ToColumnList, 
+                             i.ManText AS MappedColumnList, 
+                             i.BeforeQuery, 
+                             i.AfterQuert AS AfterQuery, 
+                             i.IsTruncate, 
+                             i.IsDeleteAndInsert AS IsDelete, 
+                             i.CreatedDate, 
+                             1 AS IsActive
+                      FROM ImportData i
+                      JOIN DataSource d ON d.DataSourceId = i.FromConnectionId 
+                      JOIN DataSource s ON s.DataSourceId = i.ToConnectionId 
                       WHERE i.Id = @ImportId", connection))
                 {
                     command.Parameters.AddWithValue("@ImportId", importId);
@@ -90,6 +128,8 @@ namespace DataTransfer.Infrastructure.Repositories
                             ToDataSourceId = reader.GetInt32(reader.GetOrdinal("ToDataSourceId")),
                             FromTable = reader.GetString(reader.GetOrdinal("FromTable")),
                             ToTable = reader.GetString(reader.GetOrdinal("ToTable")),
+                            FromDataBase = reader.IsDBNull(reader.GetOrdinal("FromDataBase")) ? string.Empty : reader.GetString(reader.GetOrdinal("FromDataBase")),
+                            ToDataBase = reader.IsDBNull(reader.GetOrdinal("ToDataBase")) ? string.Empty : reader.GetString(reader.GetOrdinal("ToDataBase")),
                             Query = reader.IsDBNull(reader.GetOrdinal("Query")) ? string.Empty : reader.GetString(reader.GetOrdinal("Query")),
                             FromColumnList = reader.GetString(reader.GetOrdinal("FromColumnList")),
                             ToColumnList = reader.GetString(reader.GetOrdinal("ToColumnList")),
