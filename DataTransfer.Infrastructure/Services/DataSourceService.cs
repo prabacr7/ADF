@@ -130,30 +130,37 @@ namespace DataTransfer.Infrastructure.Services
 
         private string EncryptPassword(string password)
         {
+            if (string.IsNullOrWhiteSpace(password))
+                return string.Empty;
+
             try
             {
-                byte[] key = Encoding.UTF8.GetBytes(_encryptionKey);
-                byte[] iv = new byte[16]; // Initialization vector
-                
-                using (var aes = Aes.Create())
+                string EncryptionKey = "MAKV2SPBNI99212";
+                byte[] clearBytes = Encoding.Unicode.GetBytes(password);
+
+                using (Aes encryptor = Aes.Create())
                 {
-                    aes.Key = key;
-                    aes.IV = iv;
-                    
-                    var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
-                    
-                    using (var memoryStream = new System.IO.MemoryStream())
+                    var pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] {
+                        0x49, 0x76, 0x61, 0x6e,
+                        0x20, 0x4d, 0x65, 0x64,
+                        0x76, 0x65, 0x64, 0x65,
+                        0x76 });
+                    encryptor.Key = pdb.GetBytes(32);
+                    encryptor.IV = pdb.GetBytes(16);
+
+                    using (var ms = new MemoryStream())
+                    using (var cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
                     {
-                        using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                        {
-                            using (var streamWriter = new System.IO.StreamWriter(cryptoStream))
-                            {
-                                streamWriter.Write(password);
-                            }
-                            return Convert.ToBase64String(memoryStream.ToArray());
-                        }
+                        cs.Write(clearBytes, 0, clearBytes.Length);
+                        cs.FlushFinalBlock();
+                        return Convert.ToBase64String(ms.ToArray());
                     }
                 }
+            }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError(ex, "Encryption failed: cryptographic error");
+                return string.Empty;
             }
             catch (Exception ex)
             {
@@ -164,30 +171,42 @@ namespace DataTransfer.Infrastructure.Services
 
         private string DecryptPassword(string encryptedPassword)
         {
+            if (string.IsNullOrWhiteSpace(encryptedPassword))
+                return string.Empty;
+
             try
             {
-                byte[] key = Encoding.UTF8.GetBytes(_encryptionKey);
-                byte[] iv = new byte[16]; // Initialization vector
-                byte[] buffer = Convert.FromBase64String(encryptedPassword);
-                
-                using (var aes = Aes.Create())
+                string EncryptionKey = "MAKV2SPBNI99212";
+                byte[] cipherBytes = Convert.FromBase64String(encryptedPassword);
+
+                using (Aes encryptor = Aes.Create())
                 {
-                    aes.Key = key;
-                    aes.IV = iv;
-                    
-                    var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-                    
-                    using (var memoryStream = new System.IO.MemoryStream(buffer))
+                    var pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] {
+                        0x49, 0x76, 0x61, 0x6e,
+                        0x20, 0x4d, 0x65, 0x64,
+                        0x76, 0x65, 0x64, 0x65,
+                        0x76 });
+                    encryptor.Key = pdb.GetBytes(32);
+                    encryptor.IV = pdb.GetBytes(16);
+
+                    using (var ms = new MemoryStream())
+                    using (var cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
                     {
-                        using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-                        {
-                            using (var streamReader = new System.IO.StreamReader(cryptoStream))
-                            {
-                                return streamReader.ReadToEnd();
-                            }
-                        }
+                        cs.Write(cipherBytes, 0, cipherBytes.Length);
+                        cs.FlushFinalBlock();
+                        return Encoding.Unicode.GetString(ms.ToArray());
                     }
                 }
+            }
+            catch (FormatException ex)
+            {
+                _logger.LogError(ex, "Input is not valid Base64");
+                return string.Empty;
+            }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError(ex, "Decryption failed: padding or key mismatch");
+                return string.Empty;
             }
             catch (Exception ex)
             {

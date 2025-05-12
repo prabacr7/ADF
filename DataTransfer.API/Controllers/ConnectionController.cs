@@ -88,6 +88,41 @@ namespace DataTransfer.API.Controllers
         {
             try
             {
+                // Log incoming request details (excluding password)
+                _logger.LogInformation("Getting tables from {Server}/{Database}, Authentication={Auth}, HasUsername={HasUser}, HasPassword={HasPass}",
+                    request.ServerName, 
+                    request.Database, 
+                    request.Authentication,
+                    !string.IsNullOrEmpty(request.UserName),
+                    !string.IsNullOrEmpty(request.Password));
+
+                // Check if the request is using SQL authentication but missing credentials
+                if (request.Authentication?.ToLower() == "sql" && string.IsNullOrEmpty(request.Password))
+                {
+                    // Try to get credentials from the data source service if userId is provided
+                    if (request.UserId.HasValue)
+                    {
+                        try
+                        {
+                            var dataSources = await _dataSourceService.GetAllDataSourcesAsync(request.UserId);
+                            var matchingDataSource = dataSources.FirstOrDefault(ds => 
+                                ds.ServerName.Equals(request.ServerName, StringComparison.OrdinalIgnoreCase) &&
+                                (ds.DefaultDatabaseName?.Equals(request.Database, StringComparison.OrdinalIgnoreCase) ?? false));
+                            
+                            if (matchingDataSource != null && !string.IsNullOrEmpty(matchingDataSource.Password))
+                            {
+                                _logger.LogInformation("Found stored credentials for {Server}/{Database}", request.ServerName, request.Database);
+                                request.UserName = matchingDataSource.UserName;
+                                request.Password = matchingDataSource.Password;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Error retrieving stored credentials for {Server}/{Database}", request.ServerName, request.Database);
+                        }
+                    }
+                }
+
                 string connectionString = BuildConnectionString(request);
                 var tables = new List<object>();
 
@@ -152,6 +187,41 @@ namespace DataTransfer.API.Controllers
         {
             try
             {
+                // Log incoming request details (excluding password)
+                _logger.LogInformation("Executing query on {Server}/{Database}, Authentication={Auth}, HasUsername={HasUser}, HasPassword={HasPass}",
+                    request.ServerName, 
+                    request.Database, 
+                    request.Authentication,
+                    !string.IsNullOrEmpty(request.UserName),
+                    !string.IsNullOrEmpty(request.Password));
+
+                // Check if the request is using SQL authentication but missing credentials
+                if (request.Authentication?.ToLower() == "sql" && string.IsNullOrEmpty(request.Password))
+                {
+                    // Try to get credentials from the data source service if userId is provided
+                    if (request.UserId.HasValue)
+                    {
+                        try
+                        {
+                            var dataSources = await _dataSourceService.GetAllDataSourcesAsync(request.UserId);
+                            var matchingDataSource = dataSources.FirstOrDefault(ds => 
+                                ds.ServerName.Equals(request.ServerName, StringComparison.OrdinalIgnoreCase) &&
+                                (ds.DefaultDatabaseName?.Equals(request.Database, StringComparison.OrdinalIgnoreCase) ?? false));
+                            
+                            if (matchingDataSource != null && !string.IsNullOrEmpty(matchingDataSource.Password))
+                            {
+                                _logger.LogInformation("Found stored credentials for {Server}/{Database}", request.ServerName, request.Database);
+                                request.UserName = matchingDataSource.UserName;
+                                request.Password = matchingDataSource.Password;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Error retrieving stored credentials for {Server}/{Database}", request.ServerName, request.Database);
+                        }
+                    }
+                }
+
                 string connectionString = BuildConnectionString(request);
                 var results = new List<object>();
 
@@ -197,6 +267,42 @@ namespace DataTransfer.API.Controllers
         {
             try
             {
+                // Log incoming request details (excluding password)
+                _logger.LogInformation("Getting table data from {Server}/{Database}/{Table}, Authentication={Auth}, HasUsername={HasUser}, HasPassword={HasPass}",
+                    request.ServerName, 
+                    request.Database, 
+                    request.TableName,
+                    request.Authentication,
+                    !string.IsNullOrEmpty(request.UserName),
+                    !string.IsNullOrEmpty(request.Password));
+
+                // Check if the request is using SQL authentication but missing credentials
+                if (request.Authentication?.ToLower() == "sql" && string.IsNullOrEmpty(request.Password))
+                {
+                    // Try to get credentials from the data source service if userId is provided
+                    if (request.UserId.HasValue)
+                    {
+                        try
+                        {
+                            var dataSources = await _dataSourceService.GetAllDataSourcesAsync(request.UserId);
+                            var matchingDataSource = dataSources.FirstOrDefault(ds => 
+                                ds.ServerName.Equals(request.ServerName, StringComparison.OrdinalIgnoreCase) &&
+                                (ds.DefaultDatabaseName?.Equals(request.Database, StringComparison.OrdinalIgnoreCase) ?? false));
+                            
+                            if (matchingDataSource != null && !string.IsNullOrEmpty(matchingDataSource.Password))
+                            {
+                                _logger.LogInformation("Found stored credentials for {Server}/{Database}", request.ServerName, request.Database);
+                                request.UserName = matchingDataSource.UserName;
+                                request.Password = matchingDataSource.Password;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Error retrieving stored credentials for {Server}/{Database}", request.ServerName, request.Database);
+                        }
+                    }
+                }
+
                 string connectionString = BuildConnectionString(request);
                 var result = new QueryResultDto<Dictionary<string, object>>
                 {
@@ -828,10 +934,10 @@ namespace DataTransfer.API.Controllers
             {
                 DataSource = request.ServerName,
                 InitialCatalog = request.Database,
-                IntegratedSecurity = request.Authentication == "windows"
+                IntegratedSecurity = request.Authentication?.ToLower() == "windows"
             };
 
-            if (request.Authentication == "sql")
+            if (request.Authentication?.ToLower() == "sql")
             {
                 builder.UserID = request.UserName ?? string.Empty;
                 builder.Password = request.Password ?? string.Empty;

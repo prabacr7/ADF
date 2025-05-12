@@ -28,81 +28,83 @@ namespace DataTransfer.Infrastructure.Services
         
         public string Decrypt(string encryptedValue)
         {
-            if (string.IsNullOrEmpty(encryptedValue))
-            {
+            if (string.IsNullOrWhiteSpace(encryptedValue))
                 return string.Empty;
-            }
-            
+
             try
             {
-                // Convert the encrypted value from base64
+                string EncryptionKey = "MAKV2SPBNI99212";
                 byte[] cipherBytes = Convert.FromBase64String(encryptedValue);
-                
-                using (Aes aes = Aes.Create())
+
+                using (Aes encryptor = Aes.Create())
                 {
-                    // Key derivation
-                    using (var deriveBytes = new Rfc2898DeriveBytes(_encryptionKey, 
-                        new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 }, 
-                        1000, HashAlgorithmName.SHA256))
+                    var pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] {
+                        0x49, 0x76, 0x61, 0x6e,
+                        0x20, 0x4d, 0x65, 0x64,
+                        0x76, 0x65, 0x64, 0x65,
+                        0x76 });
+                    encryptor.Key = pdb.GetBytes(32);
+                    encryptor.IV = pdb.GetBytes(16);
+
+                    using (var ms = new MemoryStream())
+                    using (var cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
                     {
-                        aes.Key = deriveBytes.GetBytes(32);
-                        aes.IV = deriveBytes.GetBytes(16);
-                    }
-                    
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateDecryptor(), CryptoStreamMode.Write))
-                        {
-                            cryptoStream.Write(cipherBytes, 0, cipherBytes.Length);
-                            cryptoStream.FlushFinalBlock();
-                        }
-                        
-                        byte[] decryptedBytes = memoryStream.ToArray();
-                        return Encoding.UTF8.GetString(decryptedBytes);
+                        cs.Write(cipherBytes, 0, cipherBytes.Length);
+                        cs.FlushFinalBlock();
+                        return Encoding.Unicode.GetString(ms.ToArray());
                     }
                 }
             }
+            catch (FormatException ex)
+            {
+                _logger.LogError(ex, "Input is not valid Base64");
+                return string.Empty;
+            }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError(ex, "Decryption failed: padding or key mismatch");
+                return string.Empty;
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error decrypting value");
+                _logger.LogError(ex, "Unexpected error during decryption");
                 return string.Empty;
             }
         }
         
         public string Encrypt(string plainText)
         {
-            if (string.IsNullOrEmpty(plainText))
-            {
+            if (string.IsNullOrWhiteSpace(plainText))
                 return string.Empty;
-            }
-            
+
             try
             {
-                byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
-                
-                using (Aes aes = Aes.Create())
+                string EncryptionKey = "MAKV2SPBNI99212";
+                byte[] clearBytes = Encoding.Unicode.GetBytes(plainText);
+
+                using (Aes encryptor = Aes.Create())
                 {
-                    // Key derivation
-                    using (var deriveBytes = new Rfc2898DeriveBytes(_encryptionKey, 
-                        new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 }, 
-                        1000, HashAlgorithmName.SHA256))
+                    var pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] {
+                        0x49, 0x76, 0x61, 0x6e,
+                        0x20, 0x4d, 0x65, 0x64,
+                        0x76, 0x65, 0x64, 0x65,
+                        0x76 });
+                    encryptor.Key = pdb.GetBytes(32);
+                    encryptor.IV = pdb.GetBytes(16);
+
+                    using (var ms = new MemoryStream())
+                    using (var cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
                     {
-                        aes.Key = deriveBytes.GetBytes(32);
-                        aes.IV = deriveBytes.GetBytes(16);
-                    }
-                    
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        using (var cryptoStream = new CryptoStream(memoryStream, aes.CreateEncryptor(), CryptoStreamMode.Write))
-                        {
-                            cryptoStream.Write(plainBytes, 0, plainBytes.Length);
-                            cryptoStream.FlushFinalBlock();
-                        }
-                        
-                        byte[] encryptedBytes = memoryStream.ToArray();
-                        return Convert.ToBase64String(encryptedBytes);
+                        cs.Write(clearBytes, 0, clearBytes.Length);
+                        cs.FlushFinalBlock();
+                        return Convert.ToBase64String(ms.ToArray());
                     }
                 }
+            }
+            catch (CryptographicException ex)
+            {
+                _logger.LogError(ex, "Encryption failed: cryptographic error");
+                return string.Empty;
             }
             catch (Exception ex)
             {
