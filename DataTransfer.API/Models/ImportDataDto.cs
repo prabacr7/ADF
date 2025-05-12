@@ -22,6 +22,10 @@ namespace DataTransfer.API.Models
         public string AfterQuery { get; set; }
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
         public string CronJob { get; set; }
+        
+        // Not sent by client, calculated on server
+        public DateTime? NextRunDateTime { get; internal set; }
+        public DateTime? LastRunDateTime { get; internal set; }
     }
 
     public class ImportDataResponseDto

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Dapper;
+using Cronos;
 
 namespace DataTransfer.API.Controllers
 {
@@ -49,6 +50,41 @@ namespace DataTransfer.API.Controllers
                     request.CreatedDate = DateTime.Now;
                 }
 
+                // Calculate NextRunDateTime if CronJob is provided
+                DateTime? nextRunDateTime = null;
+                if (!string.IsNullOrWhiteSpace(request.CronJob))
+                {
+                    try
+                    {
+                        // Validate and parse the cron expression
+                        var cronExpression = CronExpression.Parse(request.CronJob);
+                        
+                        // Calculate the next occurrence from current UTC time
+                        var utcNow = DateTime.UtcNow;
+                        var nextOccurrence = cronExpression.GetNextOccurrence(utcNow);
+                        
+                        if (nextOccurrence.HasValue)
+                        {
+                            nextRunDateTime = nextOccurrence.Value;
+                            _logger.LogInformation("Calculated next run time: {NextRunTime} for cron expression: {CronExpression}", 
+                                nextRunDateTime, request.CronJob);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("No future occurrences found for cron expression: {CronExpression}", request.CronJob);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Invalid cron expression: {CronExpression}", request.CronJob);
+                        return BadRequest(new ImportDataResponseDto
+                        {
+                            Success = false,
+                            Message = $"Invalid cron expression: {request.CronJob}. The correct format is '* * * * *' (minute hour day month weekday)."
+                        });
+                    }
+                }
+
                 // Get the connection string from configuration with fallbacks
                 string connectionString = null;
                 string connectionStringName = null;
@@ -86,25 +122,73 @@ namespace DataTransfer.API.Controllers
                         // Open connection with timeout
                         await connection.OpenAsync();
 
-                        // SQL Insert query with parameters
-                        string insertQuery = @"
-                            INSERT INTO [dbo].[ImportData] (
-                                [UserId], [FromConnectionId], [ToConnectionId],
-                                [FromDataBase], [ToDataBase], [FromTableName], [ToTableName],
-                                [Query], [SourceColumnList], [DescColumnList], [ManText],
-                                [Description], [Istruncate], [IsDeleteAndInsert],
-                                [BeforeQuery], [AfterQuert], [CreatedDate], [CronJob]
-                            ) VALUES (
-                                @UserId, @FromConnectionId, @ToConnectionId,
-                                @FromDataBase, @ToDataBase, @FromTableName, @ToTableName,
-                                @Query, @SourceColumnList, @DescColumnList, @ManText,
-                                @Description, @IsTruncate, @IsDeleteAndInsert,
-                                @BeforeQuery, @AfterQuery, @CreatedDate, @CronJob
-                            );
-                            SELECT CAST(SCOPE_IDENTITY() as int)";
+                        // First check if NextRunDateTime column exists
+                        bool hasNextRunColumn = false;
+                        try
+                        {
+                            using (var schemaCommand = new SqlCommand(
+                                @"SELECT COUNT(*) 
+                                FROM INFORMATION_SCHEMA.COLUMNS 
+                                WHERE TABLE_NAME = 'ImportData' 
+                                AND COLUMN_NAME = 'NextRunDateTime'", connection))
+                            {
+                                int count = Convert.ToInt32(await schemaCommand.ExecuteScalarAsync());
+                                hasNextRunColumn = (count > 0);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log but continue - we can still insert without the columns
+                            _logger.LogWarning(ex, "Could not verify or add NextRunDateTime/LastRunDateTime columns.");
+                        }
 
-                        // Execute the insert and get the new ID
-                        importId = await connection.ExecuteScalarAsync<int>(insertQuery, request);
+                        // Prepare the INSERT query - include NextRunDateTime if we have the column
+                        string insertQuery;
+                        
+                        if (hasNextRunColumn && nextRunDateTime.HasValue)
+                        {
+                            insertQuery = @"
+                                INSERT INTO [dbo].[ImportData] (
+                                    [UserId], [FromConnectionId], [ToConnectionId],
+                                    [FromDataBase], [ToDataBase], [FromTableName], [ToTableName],
+                                    [Query], [SourceColumnList], [DescColumnList], [ManText],
+                                    [Description], [Istruncate], [IsDeleteAndInsert],
+                                    [BeforeQuery], [AfterQuert], [CreatedDate], [CronJob],
+                                    [NextRunDateTime], [LastRunDateTime]
+                                ) VALUES (
+                                    @UserId, @FromConnectionId, @ToConnectionId,
+                                    @FromDataBase, @ToDataBase, @FromTableName, @ToTableName,
+                                    @Query, @SourceColumnList, @DescColumnList, @ManText,
+                                    @Description, @IsTruncate, @IsDeleteAndInsert,
+                                    @BeforeQuery, @AfterQuery, @CreatedDate, @CronJob,
+                                    @NextRunDateTime, NULL
+                                );
+                                SELECT CAST(SCOPE_IDENTITY() as int)";
+
+                            // Execute the insert and get the new ID
+                            importId = await connection.ExecuteScalarAsync<int>(insertQuery, new
+                            {
+                                request.UserId,
+                                request.FromConnectionId,
+                                request.ToConnectionId,
+                                request.FromDataBase,
+                                request.ToDataBase,
+                                request.FromTableName,
+                                request.ToTableName,
+                                request.Query,
+                                request.SourceColumnList,
+                                request.DescColumnList,
+                                request.ManText,
+                                request.Description,
+                                request.IsTruncate,
+                                request.IsDeleteAndInsert,
+                                request.BeforeQuery,
+                                AfterQuery = request.AfterQuery,
+                                request.CreatedDate,
+                                request.CronJob,
+                                NextRunDateTime = nextRunDateTime
+                            });
+                        }
                     }
                 }
                 catch (SqlException sqlEx)
