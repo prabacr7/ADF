@@ -24,6 +24,8 @@ namespace DataTransfer.Core.Entities
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
         public string CronJob { get; set; } = string.Empty;
+        public DateTime? LastRunDateTime { get; set; }
+        public DateTime? NextRunDateTime { get; set; }
         
         // Navigation properties
         public DataSource? FromDataSource { get; set; }

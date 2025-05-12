@@ -40,11 +40,14 @@ namespace DataTransfer.Worker
         {
             _logger.LogInformation("ImportJobWorker starting at: {time}", DateTimeOffset.Now);
 
+            // Try to ensure database columns exist
+            await _schedulerRepository.EnsureNextRunDateTimeColumnExistsAsync(stoppingToken);
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
-                    // Process scheduled jobs from the scheduler table
+                    // Process scheduled jobs from the scheduler table (legacy)
                     await ProcessScheduledJobsAsync(stoppingToken);
                     
                     // Process cron-based jobs directly from ImportData
@@ -63,11 +66,11 @@ namespace DataTransfer.Worker
         {
             try
             {
-                var currentTime = DateTime.Now;
+                var currentTime = DateTime.UtcNow;
                 _logger.LogDebug("Checking for due cron jobs at {Time}", currentTime);
 
-                // Get all import data with non-null cron expressions
-                var cronJobs = await _importDataRepository.GetImportsWithCronJobAsync(cancellationToken);
+                // Get all import data with non-null cron expressions from the repository
+                var cronJobs = await _schedulerRepository.GetImportsWithCronJobAsync(cancellationToken);
                 int jobCount = 0;
 
                 foreach (var importJob in cronJobs)
@@ -93,32 +96,45 @@ namespace DataTransfer.Worker
                             continue;
                         }
 
-                        // Get last execution time or use a default
-                        DateTime lastRun = DateTime.MinValue;
-                        if (_lastCronExecution.ContainsKey(importJob.ImportId))
-                        {
-                            lastRun = _lastCronExecution[importJob.ImportId];
-                        }
-
+                        // Get last execution time from database or use created date as fallback
+                        DateTime lastRun = importJob.LastRunDateTime ?? importJob.CreatedDate;
+                        
                         // Calculate next occurrence after last run
                         var nextOccurrence = schedule.GetNextOccurrence(lastRun);
 
                         // If the next occurrence is in the past relative to current time, execute the job
                         if (nextOccurrence <= currentTime)
                         {
+                            // Get the complete import data with sources
+                            var completeImportData = await _importDataRepository.GetImportDataWithSourcesAsync(importJob.ImportId, cancellationToken);
+                            
+                            if (completeImportData == null)
+                            {
+                                _logger.LogWarning("Import data not found for cron job with ID: {ImportId}", importJob.ImportId);
+                                continue;
+                            }
+
                             jobCount++;
                             _logger.LogInformation("Processing cron job for import {ImportId} with expression '{CronExpression}'", 
-                                importJob.ImportId, importJob.CronJob);
+                                completeImportData.ImportId, importJob.CronJob);
 
                             // Execute the import
-                            bool success = await _importExecutor.ExecuteImportAsync(importJob, cancellationToken);
+                            bool success = await _importExecutor.ExecuteImportAsync(completeImportData, cancellationToken);
 
-                            // Update the last execution time
+                            // Update last run time in database
+                            await _schedulerRepository.UpdateImportLastRunTimeAsync(importJob.ImportId, currentTime, cancellationToken);
+                            
+                            // Calculate and store next run time
+                            var nextRun = schedule.GetNextOccurrence(currentTime);
+                            await _schedulerRepository.UpdateNextRunTimeAsync(importJob.ImportId, nextRun, cancellationToken);
+                            
+                            // Also update in-memory cache
                             _lastCronExecution[importJob.ImportId] = currentTime;
 
                             if (success)
                             {
-                                _logger.LogInformation("Successfully executed cron job for import {ImportId}", importJob.ImportId);
+                                _logger.LogInformation("Successfully executed cron job for import {ImportId}. Next run at: {NextRun}", 
+                                    importJob.ImportId, nextRun);
                             }
                             else
                             {
@@ -146,7 +162,7 @@ namespace DataTransfer.Worker
         private async Task ProcessScheduledJobsAsync(CancellationToken cancellationToken)
         {
             var currentTime = DateTime.UtcNow;
-            _logger.LogDebug("Checking for due jobs at {Time}", currentTime);
+            _logger.LogDebug("Checking for legacy scheduled jobs at {Time}", currentTime);
 
             var dueJobs = await _schedulerRepository.GetDueJobsAsync(currentTime, cancellationToken);
             int jobCount = 0;
@@ -156,7 +172,7 @@ namespace DataTransfer.Worker
                 try
                 {
                     jobCount++;
-                    _logger.LogInformation("Processing scheduled job {SchedulerId} for import {ImportId}", job.Id, job.ImportId);
+                    _logger.LogInformation("Processing legacy scheduled job {SchedulerId} for import {ImportId}", job.Id, job.ImportId);
                     
                     // Get the complete import data
                     var importData = await _importDataRepository.GetImportDataWithSourcesAsync(job.ImportId, cancellationToken);
@@ -172,6 +188,12 @@ namespace DataTransfer.Worker
                     
                     // Update the last execution time regardless of success to prevent continuous retries of failing jobs
                     await _schedulerRepository.UpdateLastExecutionTimeAsync(job, currentTime, cancellationToken);
+                    
+                    // Also update in the ImportData table if it has a CronJob
+                    if (!string.IsNullOrEmpty(importData.CronJob))
+                    {
+                        await _schedulerRepository.UpdateImportLastRunTimeAsync(importData.ImportId, currentTime, cancellationToken);
+                    }
                     
                     if (success)
                     {
@@ -193,7 +215,7 @@ namespace DataTransfer.Worker
 
             if (jobCount > 0)
             {
-                _logger.LogInformation("Processed {Count} scheduled jobs", jobCount);
+                _logger.LogInformation("Processed {Count} legacy scheduled jobs", jobCount);
             }
         }
     }
