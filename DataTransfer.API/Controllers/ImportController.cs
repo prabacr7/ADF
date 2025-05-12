@@ -91,15 +91,15 @@ namespace DataTransfer.API.Controllers
                             INSERT INTO [dbo].[ImportData] (
                                 [UserId], [FromConnectionId], [ToConnectionId],
                                 [FromDataBase], [ToDataBase], [FromTableName], [ToTableName],
-                                [Query], [SourceColumnList], [DescColumnList],
+                                [Query], [SourceColumnList], [DescColumnList], [ManText],
                                 [Description], [Istruncate], [IsDeleteAndInsert],
-                                [BeforeQuery], [AfterQuert], [CreatedDate]
+                                [BeforeQuery], [AfterQuert], [CreatedDate], [CronJob]
                             ) VALUES (
                                 @UserId, @FromConnectionId, @ToConnectionId,
                                 @FromDataBase, @ToDataBase, @FromTableName, @ToTableName,
-                                @Query, @SourceColumnList, @DescColumnList,
+                                @Query, @SourceColumnList, @DescColumnList, @ManText,
                                 @Description, @IsTruncate, @IsDeleteAndInsert,
-                                @BeforeQuery, @AfterQuery, @CreatedDate
+                                @BeforeQuery, @AfterQuery, @CreatedDate, @CronJob
                             );
                             SELECT CAST(SCOPE_IDENTITY() as int)";
 

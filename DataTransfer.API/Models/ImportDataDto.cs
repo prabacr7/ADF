@@ -14,12 +14,14 @@ namespace DataTransfer.API.Models
         public string Query { get; set; }
         public string SourceColumnList { get; set; }
         public string DescColumnList { get; set; }
+        public string ManText { get; set; }
         public string Description { get; set; }
         public string IsTruncate { get; set; }
         public string IsDeleteAndInsert { get; set; }
         public string BeforeQuery { get; set; }
         public string AfterQuery { get; set; }
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
+        public string CronJob { get; set; }
     }
 
     public class ImportDataResponseDto

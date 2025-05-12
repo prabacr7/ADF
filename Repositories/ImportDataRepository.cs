@@ -1,0 +1,6 @@
+                             i.SourceColumnList AS FromColumnList, 
+                             i.SourceColumnList AS ToColumnList, 
+                             i.ManText AS MappedColumnList, 
+                             i.BeforeQuery, 
+                             i.AfterQuery, 
+                             i.IsTruncate, 

@@ -54,8 +54,8 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.AllowAnyOrigin() // Allow any origin for testing
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+                .AllowAnyHeader()
+                .AllowAnyMethod();
             
             // Comment out the specific origin configuration for now
             // policy.WithOrigins("http://localhost:4200")

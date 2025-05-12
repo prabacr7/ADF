@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 
 namespace DataTransfer.Infrastructure.Repositories
 {
@@ -205,6 +206,157 @@ namespace DataTransfer.Infrastructure.Repositories
             }
 
             return importData;
+        }
+
+        public async Task<IEnumerable<ImportData>> GetImportsWithCronJobAsync(CancellationToken cancellationToken = default)
+        {
+            var importList = new List<ImportData>();
+            
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                await connection.OpenAsync(cancellationToken);
+                
+                // Check if CronJob column exists
+                bool hasCronJobColumn = false;
+                
+                try
+                {
+                    using (var schemaCommand = new SqlCommand(
+                        @"SELECT COUNT(*) 
+                          FROM INFORMATION_SCHEMA.COLUMNS 
+                          WHERE TABLE_NAME = 'ImportData' 
+                          AND COLUMN_NAME = 'CronJob'", connection))
+                    {
+                        int count = Convert.ToInt32(await schemaCommand.ExecuteScalarAsync(cancellationToken));
+                        hasCronJobColumn = (count > 0);
+                    }
+
+                    if (!hasCronJobColumn)
+                    {
+                        // CronJob column doesn't exist, return empty list
+                        return importList;
+                    }
+                    
+                    // Query to get imports with non-null CronJob values
+                    using (var command = new SqlCommand(
+                        @"SELECT i.Id AS ImportId, 
+                                 COALESCE(i.Description, 'ImportData') AS Name, 
+                                 i.FromConnectionId AS FromDataSourceId, 
+                                 i.ToConnectionId AS ToDataSourceId, 
+                                 i.FromTableName AS FromTable, 
+                                 i.ToTableName AS ToTable, 
+                                 i.FromDataBase, 
+                                 i.ToDataBase, 
+                                 i.Query, 
+                                 i.SourceColumnList AS FromColumnList, 
+                                 i.DescColumnList AS ToColumnList, 
+                                 i.ManText AS MappedColumnList, 
+                                 i.BeforeQuery, 
+                                 i.AfterQuert AS AfterQuery, 
+                                 i.IsTruncate, 
+                                 i.IsDeleteAndInsert AS IsDelete, 
+                                 i.CreatedDate,
+                                 i.CronJob, 
+                                 1 AS IsActive
+                          FROM ImportData i
+                          WHERE i.CronJob IS NOT NULL AND i.CronJob <> ''", connection))
+                    {
+                        using var reader = await command.ExecuteReaderAsync(cancellationToken);
+                        while (await reader.ReadAsync(cancellationToken))
+                        {
+                            importList.Add(new ImportData
+                            {
+                                ImportId = reader.GetInt32(reader.GetOrdinal("ImportId")),
+                                Name = reader.GetString(reader.GetOrdinal("Name")),
+                                FromDataSourceId = reader.GetInt32(reader.GetOrdinal("FromDataSourceId")),
+                                ToDataSourceId = reader.GetInt32(reader.GetOrdinal("ToDataSourceId")),
+                                FromTable = reader.GetString(reader.GetOrdinal("FromTable")),
+                                ToTable = reader.GetString(reader.GetOrdinal("ToTable")),
+                                FromDataBase = reader.IsDBNull(reader.GetOrdinal("FromDataBase")) ? string.Empty : reader.GetString(reader.GetOrdinal("FromDataBase")),
+                                ToDataBase = reader.IsDBNull(reader.GetOrdinal("ToDataBase")) ? string.Empty : reader.GetString(reader.GetOrdinal("ToDataBase")),
+                                Query = reader.IsDBNull(reader.GetOrdinal("Query")) ? string.Empty : reader.GetString(reader.GetOrdinal("Query")),
+                                FromColumnList = reader.GetString(reader.GetOrdinal("FromColumnList")),
+                                ToColumnList = reader.GetString(reader.GetOrdinal("ToColumnList")),
+                                MappedColumnList = reader.IsDBNull(reader.GetOrdinal("MappedColumnList")) ? string.Empty : reader.GetString(reader.GetOrdinal("MappedColumnList")),
+                                BeforeQuery = reader.IsDBNull(reader.GetOrdinal("BeforeQuery")) ? string.Empty : reader.GetString(reader.GetOrdinal("BeforeQuery")),
+                                AfterQuery = reader.IsDBNull(reader.GetOrdinal("AfterQuery")) ? string.Empty : reader.GetString(reader.GetOrdinal("AfterQuery")),
+                                IsTruncate = ReadBooleanSafe(reader, "IsTruncate"),
+                                IsDelete = ReadBooleanSafe(reader, "IsDelete"),
+                                CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                                IsActive = ReadBooleanSafe(reader, "IsActive"),
+                                CronJob = reader.GetString(reader.GetOrdinal("CronJob"))
+                            });
+                        }
+                    }
+                    
+                    // For each import, fetch the source and destination data sources
+                    foreach (var import in importList)
+                    {
+                        // Fetch source data source
+                        using (var command = new SqlCommand(
+                            @"SELECT DataSourceId, DatasourceName, ServerName, UserName, Password, 
+                              Authentication AS AuthenticationType, DefaultDatabaseName, UserId, CreatedDate, 1 AS IsActive
+                              FROM DataSource
+                              WHERE DataSourceId = @DataSourceId", connection))
+                        {
+                            command.Parameters.AddWithValue("@DataSourceId", import.FromDataSourceId);
+
+                            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+                            if (await reader.ReadAsync(cancellationToken))
+                            {
+                                import.FromDataSource = new DataSource
+                                {
+                                    DataSourceId = reader.GetInt32(reader.GetOrdinal("DataSourceId")),
+                                    DatasourceName = reader.GetString(reader.GetOrdinal("DatasourceName")),
+                                    ServerName = reader.GetString(reader.GetOrdinal("ServerName")),
+                                    UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                    Password = reader.GetString(reader.GetOrdinal("Password")),
+                                    AuthenticationType = reader.GetString(reader.GetOrdinal("AuthenticationType")),
+                                    DefaultDatabaseName = reader.GetString(reader.GetOrdinal("DefaultDatabaseName")),
+                                    UserId = reader.IsDBNull(reader.GetOrdinal("UserId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("UserId")),
+                                    CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                                    IsActive = ReadBooleanSafe(reader, "IsActive")
+                                };
+                            }
+                        }
+
+                        // Fetch destination data source
+                        using (var command = new SqlCommand(
+                            @"SELECT DataSourceId, DatasourceName, ServerName, UserName, Password, 
+                              Authentication AS AuthenticationType, DefaultDatabaseName, UserId, CreatedDate, 1 AS IsActive
+                              FROM DataSource
+                              WHERE DataSourceId = @DataSourceId", connection))
+                        {
+                            command.Parameters.AddWithValue("@DataSourceId", import.ToDataSourceId);
+
+                            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+                            if (await reader.ReadAsync(cancellationToken))
+                            {
+                                import.ToDataSource = new DataSource
+                                {
+                                    DataSourceId = reader.GetInt32(reader.GetOrdinal("DataSourceId")),
+                                    DatasourceName = reader.GetString(reader.GetOrdinal("DatasourceName")),
+                                    ServerName = reader.GetString(reader.GetOrdinal("ServerName")),
+                                    UserName = reader.GetString(reader.GetOrdinal("UserName")),
+                                    Password = reader.GetString(reader.GetOrdinal("Password")),
+                                    AuthenticationType = reader.GetString(reader.GetOrdinal("AuthenticationType")),
+                                    DefaultDatabaseName = reader.GetString(reader.GetOrdinal("DefaultDatabaseName")),
+                                    UserId = reader.IsDBNull(reader.GetOrdinal("UserId")) ? null : (int?)reader.GetInt32(reader.GetOrdinal("UserId")),
+                                    CreatedDate = reader.GetDateTime(reader.GetOrdinal("CreatedDate")),
+                                    IsActive = ReadBooleanSafe(reader, "IsActive")
+                                };
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error and return empty list
+                    Console.WriteLine($"Error in GetImportsWithCronJobAsync: {ex.Message}");
+                }
+            }
+
+            return importList;
         }
     }
 } 

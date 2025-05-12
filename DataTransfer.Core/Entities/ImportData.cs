@@ -23,6 +23,7 @@ namespace DataTransfer.Core.Entities
         public bool IsDelete { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
+        public string CronJob { get; set; } = string.Empty;
         
         // Navigation properties
         public DataSource? FromDataSource { get; set; }
